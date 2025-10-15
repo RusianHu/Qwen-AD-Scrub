@@ -4,6 +4,8 @@
 
 <img width="1048" height="1247" alt="image" src="https://github.com/user-attachments/assets/950b18cf-f850-4e3e-a226-0abf2e145023" />
 
+- 分析完成即可之后 **一键去除**
+
 <img width="997" height="346" alt="image" src="https://github.com/user-attachments/assets/c58a10ba-e763-4f42-adc9-9a7147ed2270" />
 
 ## 📋 系统要求
