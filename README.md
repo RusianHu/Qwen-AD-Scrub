@@ -1,6 +1,6 @@
 # 🎬 Qwen-AD-Scrub
 
-基于 **Qwen3-VL 系列模型** 和 **FFmpeg** 的智能视频一键广告去除工具
+基于 **Qwen3-VL 系列模型** 和 **FFmpeg** 的智能视频一键广告去除工具，方便你洗稿。
 
 <img width="1381" height="1188" alt="image" src="https://github.com/user-attachments/assets/20b7f5c2-55a5-4419-bd18-de40e8c8f976" />
 
