@@ -1,5 +1,16 @@
 # 🎬 Qwen-AD-Scrub
 
+[![GitHub stars](https://img.shields.io/github/stars/RusianHu/Qwen-AD-Scrub?style=social)](https://github.com/RusianHu/Qwen-AD-Scrub/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/RusianHu/Qwen-AD-Scrub?style=social)](https://github.com/RusianHu/Qwen-AD-Scrub/network/members)
+[![GitHub watchers](https://img.shields.io/github/watchers/RusianHu/Qwen-AD-Scrub?style=social)](https://github.com/RusianHu/Qwen-AD-Scrub/watchers)
+[![GitHub followers](https://img.shields.io/github/followers/RusianHu?style=social)](https://github.com/RusianHu)
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/pytorch-2.0+-red.svg)](https://pytorch.org/)
+[![Transformers](https://img.shields.io/badge/transformers-4.37+-yellow.svg)](https://huggingface.co/docs/transformers)
+[![Gradio](https://img.shields.io/badge/gradio-4.0+-orange.svg)](https://gradio.app/)
+
 基于 **Qwen3-VL 系列模型** 和 **FFmpeg** 的智能视频一键广告去除工具，方便你洗稿。
 
 <img width="1048" height="1247" alt="image" src="https://github.com/user-attachments/assets/950b18cf-f850-4e3e-a226-0abf2e145023" />
@@ -106,6 +117,28 @@ python app.py
    - 查看检测到的广告片段
    - 点击"去除广告并导出"
    - 等待处理完成，下载处理后的视频
+
+### 输出文件说明
+
+处理后的视频会保存在项目根目录下的 `output` 文件夹中：
+
+```
+Qwen-AD-Scrub/
+├── output/                          # 输出文件夹
+│   ├── 原视频名_no_ads.mp4          # 去除广告后的视频
+│   └── temp_segments/               # 临时片段文件夹（处理完成后自动清理）
+│       ├── segment_000.mp4
+│       ├── segment_001.mp4
+│       └── concat_list.txt
+```
+
+**输出视频特性：**
+- 文件名格式：`原视频名_no_ads.mp4`
+- 编码格式：H.264 (libx264)
+- 视频质量：CRF 18（高质量，接近无损）
+- 音频编码：AAC 192kbps
+- 保持原视频的分辨率和帧率
+- 优化网络播放（faststart）
 
 ### 参数调优建议
 

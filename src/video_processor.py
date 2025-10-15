@@ -177,19 +177,27 @@ class VideoProcessor:
     ) -> bool:
         """切割单个片段"""
         duration = end - start
-        
+
+        # 获取原视频信息以保持相同的编码参数
+        video_info = self.get_video_info(str(input_path))
+
         cmd = [
             str(self.ffmpeg_path),
+            "-ss", str(start),  # 在输入前指定起始时间（更精确）
             "-i", str(input_path),
-            "-ss", str(start),
             "-t", str(duration),
-            "-c", "copy",  # 复制编码，速度快
+            "-c:v", "libx264",  # 使用 H.264 编码
+            "-preset", "medium",  # 编码速度（medium 平衡质量和速度）
+            "-crf", "18",  # 质量参数（18 为高质量，0-51，越小质量越好）
+            "-c:a", "aac",  # 音频编码
+            "-b:a", "192k",  # 音频比特率
+            "-movflags", "+faststart",  # 优化网络播放
             "-y",  # 覆盖输出文件
             str(output_path)
         ]
-        
+
         logger.info(f"切割片段: {start:.2f}s - {end:.2f}s")
-        
+
         try:
             result = subprocess.run(
                 cmd,
@@ -197,13 +205,13 @@ class VideoProcessor:
                 text=True,
                 check=True
             )
-            
+
             if progress_callback:
                 progress_callback(1.0)
-            
+
             logger.info(f"✓ 视频已保存: {output_path}")
             return True
-            
+
         except subprocess.CalledProcessError as e:
             logger.error(f"FFmpeg 错误: {e.stderr}")
             return False
@@ -249,7 +257,12 @@ class VideoProcessor:
                 "-f", "concat",
                 "-safe", "0",
                 "-i", str(concat_file),
-                "-c", "copy",
+                "-c:v", "libx264",  # 使用 H.264 编码
+                "-preset", "medium",  # 编码速度
+                "-crf", "18",  # 质量参数
+                "-c:a", "aac",  # 音频编码
+                "-b:a", "192k",  # 音频比特率
+                "-movflags", "+faststart",  # 优化网络播放
                 "-y",
                 str(output_path)
             ]

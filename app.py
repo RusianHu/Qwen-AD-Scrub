@@ -21,6 +21,10 @@ model_loader = None
 video_processor = None
 ad_detector = None
 
+# 输出目录配置
+OUTPUT_DIR = Path(__file__).parent / "output"
+OUTPUT_DIR.mkdir(exist_ok=True)  # 确保输出目录存在
+
 
 def initialize_system():
     """初始化系统"""
@@ -280,9 +284,9 @@ def process_video_ui(video_file, segments_json, progress=gr.Progress()):
         if not keep_segments:
             return "去除广告后没有剩余内容", None
         
-        # 生成输出文件名
+        # 生成输出文件名（保存到 output 目录）
         input_path = Path(video_file)
-        output_path = input_path.parent / f"{input_path.stem}_no_ads{input_path.suffix}"
+        output_path = OUTPUT_DIR / f"{input_path.stem}_no_ads{input_path.suffix}"
         
         # 处理视频
         progress(0.3, desc="正在处理视频...")
@@ -480,7 +484,7 @@ def create_ui():
                 <ul>
                     <li>处理大文件可能需要较长时间</li>
                     <li>确保有足够的磁盘空间</li>
-                    <li>处理后的视频将保存在原视频同目录下</li>
+                    <li>处理后的视频将保存在项目的 <code>output</code> 文件夹中</li>
                 </ul>
                 </div>
                 """)

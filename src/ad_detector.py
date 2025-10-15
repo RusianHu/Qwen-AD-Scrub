@@ -310,19 +310,23 @@ class AdDetector:
         # 尝试提取时间范围
         # 这是一个简化的实现，实际可能需要更复杂的解析逻辑
         import re
-        
-        # 匹配类似 "0:30-1:00" 或 "30秒-60秒" 的时间范围
+
+        # 匹配类似 "0:30-1:00" 或 "30秒-60秒" 或 "0:02:25 - 0:02:30" 的时间范围
         time_patterns = [
+            r'(\d+):(\d+):(\d+)\s*-\s*(\d+):(\d+):(\d+)',  # H:MM:SS-H:MM:SS
             r'(\d+):(\d+)\s*-\s*(\d+):(\d+)',  # MM:SS-MM:SS
             r'(\d+)秒\s*-\s*(\d+)秒',  # XX秒-YY秒
             r'(\d+)\s*-\s*(\d+)\s*秒',  # XX-YY秒
         ]
-        
+
         for pattern in time_patterns:
             matches = re.findall(pattern, output_text)
             for match in matches:
                 try:
-                    if len(match) == 4:  # MM:SS format
+                    if len(match) == 6:  # H:MM:SS format
+                        start = int(match[0]) * 3600 + int(match[1]) * 60 + int(match[2])
+                        end = int(match[3]) * 3600 + int(match[4]) * 60 + int(match[5])
+                    elif len(match) == 4:  # MM:SS format
                         start = int(match[0]) * 60 + int(match[1])
                         end = int(match[2]) * 60 + int(match[3])
                     elif len(match) == 2:  # 秒 format
@@ -330,14 +334,16 @@ class AdDetector:
                         end = int(match[1])
                     else:
                         continue
-                    
+
                     if start < end:
                         result['ad_segments'].append({
                             'start': start,
                             'end': end,
                             'duration': end - start
                         })
-                except (ValueError, IndexError):
+                        logger.info(f"✓ 解析到广告片段: {start}s - {end}s (时长: {end - start}s)")
+                except (ValueError, IndexError) as e:
+                    logger.warning(f"解析时间失败: {match}, 错误: {e}")
                     continue
         
         # 提取摘要
