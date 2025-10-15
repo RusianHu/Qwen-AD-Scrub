@@ -4,6 +4,8 @@
 
 <img width="1381" height="1188" alt="image" src="https://github.com/user-attachments/assets/20b7f5c2-55a5-4419-bd18-de40e8c8f976" />
 
+<img width="997" height="346" alt="image" src="https://github.com/user-attachments/assets/c58a10ba-e763-4f42-adc9-9a7147ed2270" />
+
 ## 📋 系统要求
 
 ### 硬件要求
