@@ -2,6 +2,7 @@
 
 基于 **Qwen3-VL 系列模型** 和 **FFmpeg** 的智能视频广告去除工具
 
+<img width="1381" height="1188" alt="image" src="https://github.com/user-attachments/assets/20b7f5c2-55a5-4419-bd18-de40e8c8f976" />
 
 ## 📋 系统要求
 
@@ -183,83 +184,6 @@ result = detector.detect_ads_in_video(
 )
 ```
 
-## 🐛 常见问题与解决方案
-
-### 1. 模型下载相关
-
-**Q: 模型下载失败或速度很慢？**
-
-**A**: 使用国内 HF-Mirror 镜像站：
-```bash
-# 方法 1: 使用 setup_dependencies.py（推荐）
-python setup_dependencies.py
-
-# 方法 2: 手动设置环境变量
-export HF_ENDPOINT=https://hf-mirror.com  # Linux/Mac
-$env:HF_ENDPOINT='https://hf-mirror.com'  # Windows PowerShell
-```
-
-**Q: 模型文件不完整？**
-
-**A**: 重新运行 `setup_dependencies.py`，脚本会自动续传未完成的下载。
-
-### 2. 显存优化相关
-
-**Q: CUDA out of memory 错误？**
-
-**A**: 项目已默认启用 8-bit 量化，如仍遇到问题：
-1. **降低采样帧率**: 将 fps 从 0.3 降至 0.2
-2. **关闭其他 GPU 程序**: 释放显存
-3. **分段处理**: 将长视频切分为多个短片段
-4. **检查量化是否启用**: 确保"使用 8-bit 量化"已勾选
-
-**Q: 8-bit 量化会影响精度吗？**
-
-**A**: 精度损失 < 1%，对广告检测任务影响极小，可放心使用。
-
-### 3. 视频处理相关
-
-**Q: 支持哪些视频格式？**
-
-**A**: 支持常见格式：MP4, AVI, MOV, MKV, FLV 等。
-
-**Q: 中文路径或文件名报错？**
-
-**A**: 已完全支持中文路径，如遇问题请确保：
-- 使用最新版本的代码
-- 路径中不包含特殊字符（如 `<>:"|?*`）
-
-**Q: 处理速度太慢？**
-
-**A**: 优化方法：
-- 降低采样帧率（如从 0.5 降至 0.3）
-- 启用 Flash Attention 2（需要支持的 GPU）
-- 使用更短的视频进行测试
-
-### 4. FFmpeg 相关
-
-**Q: FFmpeg 无法执行？**
-
-**A**:
-1. 运行 `setup_dependencies.py` 自动解压
-2. 手动检查 `FFmpeg/bin/ffmpeg.exe` 是否存在
-3. 如果压缩包损坏，删除后重新运行脚本下载
-
-### 5. 检测精度相关
-
-**Q: 检测结果不准确？**
-
-**A**: 尝试以下方法：
-1. **提高采样帧率**: 从 0.3 提高到 0.5 或 1.0
-2. **使用自定义提示词**: 明确描述广告特征
-3. **多次分析**: 对关键片段使用不同参数多次分析
-
-**Q: 漏检或误检广告？**
-
-**A**:
-- **漏检**: 提高 fps，使用更详细的提示词
-- **误检**: 降低 fps，优化提示词描述
-
 ## 📝 技术栈
 
 ### 核心技术
@@ -318,10 +242,6 @@ if result['has_ads']:
 - ✅ 自动显存管理和多卡支持
 - ✅ 详细的文档和示例代码
 
-## 📄 许可证
-
-MIT License - 详见 [LICENSE](LICENSE) 文件
-
 ## 🙏 致谢
 
 - [Qwen Team](https://github.com/QwenLM) - 提供优秀的 Qwen3-VL 视觉语言模型
@@ -336,16 +256,6 @@ MIT License - 详见 [LICENSE](LICENSE) 文件
 - **Email**: hu_bo_cheng@qq.com
 - **Issues**: [GitHub Issues](https://github.com/RusianHu/Qwen-AD-Scrub/issues)
 
-## 🤝 贡献
+## 📄 许可证
 
-欢迎提交 Issue 和 Pull Request！
-
-在提交 PR 前，请确保：
-- 代码符合项目风格
-- 添加必要的注释和文档
-- 测试通过
-
----
-
-**⚠️ 免责声明**: 本工具仅供学习和研究使用，请遵守相关法律法规和版权规定。使用本工具处理的视频内容应符合相关版权法律。
-
+MIT License - 详见 [LICENSE](LICENSE) 文件
