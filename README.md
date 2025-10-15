@@ -58,14 +58,6 @@ python setup_dependencies.py
 
 ### 4. 启动 Web UI
 
-**推荐方式**（自动优化配置）：
-
-```bash
-python start_optimized.py
-```
-
-或使用标准方式：
-
 ```bash
 python app.py
 ```

@@ -558,8 +558,6 @@ def main():
                     print(f"  - {model}")
                 print("\n你可以运行以下命令启动应用:")
                 print("  python app.py")
-                print("\n或使用优化启动脚本:")
-                print("  python start_optimized.py")
             else:
                 print("\n提示: 还有依赖未安装，建议先完成安装")
             break

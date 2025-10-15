@@ -522,12 +522,96 @@ def create_ui():
     return app
 
 
+def check_dependencies():
+    """检查关键依赖是否安装"""
+    logger.info("检查依赖...")
+
+    missing_deps = []
+
+    # 检查 bitsandbytes（8-bit 量化需要）
+    try:
+        import bitsandbytes
+        logger.info("✓ bitsandbytes 已安装")
+    except ImportError:
+        missing_deps.append("bitsandbytes")
+        logger.warning("✗ bitsandbytes 未安装（8-bit 量化功能将不可用）")
+
+    # 检查 transformers
+    try:
+        import transformers
+        logger.info("✓ transformers 已安装")
+    except ImportError:
+        missing_deps.append("transformers")
+        logger.error("✗ transformers 未安装（必需）")
+
+    # 检查 qwen-vl-utils
+    try:
+        import qwen_vl_utils
+        logger.info("✓ qwen-vl-utils 已安装")
+    except ImportError:
+        missing_deps.append("qwen-vl-utils")
+        logger.error("✗ qwen-vl-utils 未安装（必需）")
+
+    if missing_deps:
+        logger.warning("\n缺少以下依赖:")
+        for dep in missing_deps:
+            logger.warning(f"  - {dep}")
+        logger.warning("\n请运行以下命令安装:")
+        logger.warning(f"  pip install {' '.join(missing_deps)} -i https://pypi.tuna.tsinghua.edu.cn/simple")
+
+        # 如果缺少必需依赖，询问是否继续
+        if "transformers" in missing_deps or "qwen-vl-utils" in missing_deps:
+            logger.error("\n缺少必需依赖，程序可能无法正常运行")
+            return False
+
+    return True
+
+
+def print_startup_info():
+    """打印启动信息和使用建议"""
+    logger.info("\n" + "=" * 60)
+    logger.info("🎬 Qwen-AD-Scrub - 智能视频广告去除工具")
+    logger.info("=" * 60)
+    logger.info("\n💡 使用建议:")
+    logger.info("  1. 首次使用需要先'初始化系统'，然后'加载模型'")
+    logger.info("  2. 推荐启用 8-bit 量化（默认已勾选，节省 50% 显存）")
+    logger.info("  3. 支持多个不同参数量的模型（4B、8B、30B 等）")
+    logger.info("  4. 可以在运行时动态切换模型")
+    logger.info("\n📊 推荐参数设置:")
+    logger.info("  - 短视频 (< 1分钟):   fps=0.5-1.0")
+    logger.info("  - 中等视频 (1-3分钟): fps=0.3-0.5")
+    logger.info("  - 长视频 (> 3分钟):   fps=0.2-0.3")
+    logger.info("\n🚀 启动中...")
+    logger.info("  浏览器访问: http://localhost:7860")
+    logger.info("  按 Ctrl+C 停止服务器")
+    logger.info("=" * 60 + "\n")
+
+
 if __name__ == "__main__":
-    app = create_ui()
-    app.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
-        share=False,
-        show_error=True
-    )
+    # 打印启动信息
+    print_startup_info()
+
+    # 检查依赖
+    if not check_dependencies():
+        logger.error("\n依赖检查失败，但仍将尝试启动...")
+        logger.error("如果遇到错误，请先安装缺失的依赖\n")
+
+    logger.info("")
+
+    # 创建并启动应用
+    try:
+        app = create_ui()
+        app.launch(
+            server_name="0.0.0.0",
+            server_port=7860,
+            share=False,
+            show_error=True
+        )
+    except KeyboardInterrupt:
+        logger.info("\n\n程序已停止")
+    except Exception as e:
+        logger.error(f"\n启动失败: {e}")
+        logger.error("请检查依赖是否正确安装")
+        import sys
+        sys.exit(1)
 
