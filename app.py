@@ -5,6 +5,7 @@ Qwen-AD-Scrub Web UI
 
 import gradio as gr
 import os
+import time
 from pathlib import Path
 from src.model_loader import ModelLoader
 from src.video_processor import VideoProcessor
@@ -90,16 +91,20 @@ def load_model_ui(model_name, use_flash_attn, use_8bit):
 
 def switch_model_ui(new_model_name, use_flash_attn, use_8bit, progress=gr.Progress()):
     """切换模型 UI 回调"""
+    # 在函数的绝对开始就初始化进度条
+    progress(0, desc="初始化...")
+
     global model_loader, ad_detector
 
-    # 立即初始化进度条
-    progress(0, desc="准备切换模型...")
-
     if model_loader is None:
+        progress(0, desc="请先初始化系统")
         return "请先初始化系统"
 
     if not new_model_name:
+        progress(0, desc="请选择要切换的模型")
         return "请选择要切换的模型"
+
+    progress(0.05, desc="准备切换模型...")
 
     try:
         current_model = model_loader.current_model_name
@@ -144,16 +149,20 @@ def switch_model_ui(new_model_name, use_flash_attn, use_8bit, progress=gr.Progre
 
 def analyze_video_ui(video_file, fps, custom_prompt, progress=gr.Progress()):
     """分析视频 UI 回调"""
+    # 在函数的绝对开始就初始化进度条
+    progress(0, desc="初始化...")
+
     global ad_detector
 
-    # 立即初始化进度条，确保遮罩层显示
-    progress(0, desc="准备分析...")
-
     if ad_detector is None:
+        progress(0, desc="请先加载模型")
         return "请先加载模型", None, ""
 
     if video_file is None:
+        progress(0, desc="请上传视频文件")
         return "请上传视频文件", None, ""
+
+    progress(0.05, desc="准备分析...")
 
     try:
         # 记录视频文件路径
@@ -163,6 +172,7 @@ def analyze_video_ui(video_file, fps, custom_prompt, progress=gr.Progress()):
         # 确保路径存在
         video_path = Path(video_file)
         if not video_path.exists():
+            progress(0, desc="视频文件不存在")
             return f"视频文件不存在: {video_file}", None, ""
 
         logger.info(f"视频文件大小: {video_path.stat().st_size / (1024*1024):.2f} MB")
@@ -212,19 +222,24 @@ def analyze_video_ui(video_file, fps, custom_prompt, progress=gr.Progress()):
 
 def process_video_ui(video_file, segments_json, progress=gr.Progress()):
     """处理视频 UI 回调"""
+    # 在函数的绝对开始就初始化进度条
+    progress(0, desc="初始化...")
+
     global video_processor
 
-    # 立即初始化进度条，确保遮罩层显示
-    progress(0, desc="准备处理...")
-
     if video_processor is None:
+        progress(0, desc="视频处理器未初始化")
         return "视频处理器未初始化", None
 
     if video_file is None:
+        progress(0, desc="请上传视频文件")
         return "请上传视频文件", None
 
     if not segments_json:
+        progress(0, desc="请先分析视频")
         return "请先分析视频以获取广告片段信息", None
+
+    progress(0.05, desc="准备处理...")
 
     try:
         # 解析片段信息
@@ -479,13 +494,16 @@ def create_ui():
         switch_model_btn.click(
             fn=switch_model_ui,
             inputs=[model_selector, use_flash_attn, use_8bit],
-            outputs=model_output
+            outputs=model_output,
+            show_progress="full"  # 显示完整的进度条和遮罩
         )
 
         analyze_btn.click(
             fn=analyze_video_ui,
             inputs=[video_input, fps_slider, custom_prompt_input],
-            outputs=[analysis_output, segments_state, gr.Textbox(visible=False)]
+            outputs=[analysis_output, segments_state, gr.Textbox(visible=False)],
+            show_progress="full",  # 显示完整的进度条和遮罩
+            show_api=False  # 隐藏 API 信息
         )
 
         info_btn.click(
@@ -497,7 +515,8 @@ def create_ui():
         process_btn.click(
             fn=process_video_ui,
             inputs=[video_input, segments_state],
-            outputs=[process_output, output_video]
+            outputs=[process_output, output_video],
+            show_progress="full"  # 显示完整的进度条和遮罩
         )
 
     return app
