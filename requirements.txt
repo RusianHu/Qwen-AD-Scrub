@@ -1,0 +1,42 @@
+# 核心依赖
+torch>=2.4.0
+torchvision>=0.19.0
+# Qwen3-VL 需要最新版本的 transformers (4.57.0+)
+git+https://github.com/huggingface/transformers.git
+accelerate>=0.26.0
+qwen-vl-utils[decord]>=0.0.10
+
+# Gradio Web UI
+gradio>=5.4.0
+gradio_client>=1.4.2
+
+# 视频处理
+av>=12.0.0
+decord>=0.6.0
+opencv-python>=4.8.0
+pillow>=10.0.0
+
+# 工具库
+numpy>=1.24.0
+tqdm>=4.65.0
+requests>=2.31.0
+
+# 可选：加速推理和量化
+bitsandbytes>=0.41.0  # 用于 8-bit 量化，节省显存
+
+# Flash Attention 2（可选，用于加速推理）
+# 注意：flash-attn 在 Windows 上安装较为复杂，需要以下条件：
+# 1. Visual Studio 2019 或更高版本（需要 C++ 构建工具）
+# 2. CUDA Toolkit 11.8 或更高版本
+# 3. PyTorch 需要与 CUDA 版本匹配
+#
+# Linux/WSL2 安装命令：
+#   pip install flash-attn --no-build-isolation
+#
+# Windows 安装（不推荐，建议使用 WSL2）：
+#   需要先安装 Visual Studio 和 CUDA Toolkit
+#   pip install flash-attn --no-build-isolation
+#
+# 如果不安装 flash-attn，程序会自动使用标准 Attention，功能完全正常
+# flash-attn>=2.6.1
+

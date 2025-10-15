@@ -1,2 +1,60 @@
 AGENTS.md
 /FFmpeg
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 虚拟环境
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 模型文件
+/models/
+*.bin
+*.safetensors
+*.gguf
+
+# 临时文件
+temp/
+tmp/
+*.tmp
+*.log
+
+# 输出文件
+output/
+*_no_ads.*
+temp_segments/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+/src
