@@ -12,7 +12,8 @@ from src.video_processor import VideoProcessor
 from src.ad_detector import AdDetector
 import logging
 
-logging.basicConfig(level=logging.INFO)
+# 配置日志：只显示 ERROR 级别
+logging.basicConfig(level=logging.ERROR, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 # 全局变量
@@ -396,40 +397,45 @@ def create_ui():
                 <li>可以在运行时<strong>动态切换模型</strong>，系统会自动释放旧模型显存</li>
                 <li><strong>8-bit 量化</strong>: 默认启用，可节省约 50% 显存，对精度影响很小</li>
                 <li>Flash Attention 2 需要支持的 GPU (Ampere 架构及以上，如 RTX 30/40/50 系列)</li>
-                <li>模型加载可能需要几分钟，请耐心等待</li>
             </ul>
             </div>
             """)
 
+            # 步骤 1: 系统初始化
+            gr.Markdown("### 📋 步骤 1: 初始化系统")
             with gr.Row():
-                with gr.Column(scale=1):
-                    gr.Markdown("### 步骤 1: 初始化系统")
-                    init_btn = gr.Button("🚀 初始化系统", variant="primary", size="lg")
-                    init_output = gr.Textbox(label="初始化状态", lines=5, interactive=False)
+                init_btn = gr.Button("🚀 初始化系统", variant="primary", size="lg", scale=1)
+                init_output = gr.Textbox(label="初始化状态", lines=3, interactive=False, scale=3)
 
-                with gr.Column(scale=1):
-                    gr.Markdown("### 步骤 2: 选择并加载模型")
+            gr.Markdown("---")  # 分隔线
 
-                    model_selector = gr.Dropdown(
-                        label="选择模型",
-                        choices=[],
-                        value=None,
-                        info="从 models 文件夹中扫描到的可用模型"
-                    )
+            # 步骤 2: 模型选择与加载
+            gr.Markdown("### 🤖 步骤 2: 选择并加载模型")
 
-                    with gr.Row():
-                        use_8bit = gr.Checkbox(label="使用 8-bit 量化", value=True, info="推荐开启，可节省约 50% 显存")
-                        use_flash_attn = gr.Checkbox(
-                            label="使用 Flash Attention 2",
-                            value=False,
-                            info="需要单独安装 flash-attn 库（Windows 上较复杂）"
-                        )
+            model_selector = gr.Dropdown(
+                label="选择模型",
+                choices=[],
+                value=None,
+                info="从 models 文件夹中扫描到的可用模型"
+            )
 
-                    with gr.Row():
-                        load_model_btn = gr.Button("📦 加载模型", variant="primary", size="lg")
-                        switch_model_btn = gr.Button("🔄 切换模型", variant="secondary", size="lg")
+            with gr.Row():
+                use_8bit = gr.Checkbox(
+                    label="8-bit 量化",
+                    value=True,
+                    info="推荐开启，节省约 50% 显存"
+                )
+                use_flash_attn = gr.Checkbox(
+                    label="Flash Attention 2",
+                    value=False,
+                    info="需要单独安装（Windows 上较复杂）"
+                )
 
-                    model_output = gr.Textbox(label="模型状态", lines=5, interactive=False)
+            with gr.Row():
+                load_model_btn = gr.Button("📦 加载模型", variant="primary", size="lg", scale=1)
+                switch_model_btn = gr.Button("🔄 切换模型", variant="secondary", size="lg", scale=1)
+
+            model_output = gr.Textbox(label="模型状态", lines=3, interactive=False)
 
         # 主功能标签页
         with gr.Tabs():
@@ -523,80 +529,43 @@ def create_ui():
 
 
 def check_dependencies():
-    """检查关键依赖是否安装"""
-    logger.info("检查依赖...")
-
+    """检查关键依赖是否安装（静默检查）"""
     missing_deps = []
 
     # 检查 bitsandbytes（8-bit 量化需要）
     try:
         import bitsandbytes
-        logger.info("✓ bitsandbytes 已安装")
     except ImportError:
         missing_deps.append("bitsandbytes")
-        logger.warning("✗ bitsandbytes 未安装（8-bit 量化功能将不可用）")
 
     # 检查 transformers
     try:
         import transformers
-        logger.info("✓ transformers 已安装")
     except ImportError:
         missing_deps.append("transformers")
-        logger.error("✗ transformers 未安装（必需）")
 
     # 检查 qwen-vl-utils
     try:
         import qwen_vl_utils
-        logger.info("✓ qwen-vl-utils 已安装")
     except ImportError:
         missing_deps.append("qwen-vl-utils")
-        logger.error("✗ qwen-vl-utils 未安装（必需）")
 
     if missing_deps:
-        logger.warning("\n缺少以下依赖:")
-        for dep in missing_deps:
-            logger.warning(f"  - {dep}")
-        logger.warning("\n请运行以下命令安装:")
-        logger.warning(f"  pip install {' '.join(missing_deps)} -i https://pypi.tuna.tsinghua.edu.cn/simple")
+        logger.error(f"缺少依赖: {', '.join(missing_deps)}")
+        logger.error(f"安装命令: pip install {' '.join(missing_deps)} -i https://pypi.tuna.tsinghua.edu.cn/simple")
 
-        # 如果缺少必需依赖，询问是否继续
+        # 如果缺少必需依赖，返回 False
         if "transformers" in missing_deps or "qwen-vl-utils" in missing_deps:
-            logger.error("\n缺少必需依赖，程序可能无法正常运行")
             return False
 
     return True
 
 
-def print_startup_info():
-    """打印启动信息和使用建议"""
-    logger.info("\n" + "=" * 60)
-    logger.info("🎬 Qwen-AD-Scrub - 智能视频广告去除工具")
-    logger.info("=" * 60)
-    logger.info("\n💡 使用建议:")
-    logger.info("  1. 首次使用需要先'初始化系统'，然后'加载模型'")
-    logger.info("  2. 推荐启用 8-bit 量化（默认已勾选，节省 50% 显存）")
-    logger.info("  3. 支持多个不同参数量的模型（4B、8B、30B 等）")
-    logger.info("  4. 可以在运行时动态切换模型")
-    logger.info("\n📊 推荐参数设置:")
-    logger.info("  - 短视频 (< 1分钟):   fps=0.5-1.0")
-    logger.info("  - 中等视频 (1-3分钟): fps=0.3-0.5")
-    logger.info("  - 长视频 (> 3分钟):   fps=0.2-0.3")
-    logger.info("\n🚀 启动中...")
-    logger.info("  浏览器访问: http://localhost:7860")
-    logger.info("  按 Ctrl+C 停止服务器")
-    logger.info("=" * 60 + "\n")
-
-
 if __name__ == "__main__":
-    # 打印启动信息
-    print_startup_info()
-
-    # 检查依赖
+    # 静默检查依赖
     if not check_dependencies():
-        logger.error("\n依赖检查失败，但仍将尝试启动...")
-        logger.error("如果遇到错误，请先安装缺失的依赖\n")
-
-    logger.info("")
+        import sys
+        sys.exit(1)
 
     # 创建并启动应用
     try:
@@ -608,10 +577,9 @@ if __name__ == "__main__":
             show_error=True
         )
     except KeyboardInterrupt:
-        logger.info("\n\n程序已停止")
+        pass
     except Exception as e:
-        logger.error(f"\n启动失败: {e}")
-        logger.error("请检查依赖是否正确安装")
+        logger.error(f"启动失败: {e}")
         import sys
         sys.exit(1)
 
