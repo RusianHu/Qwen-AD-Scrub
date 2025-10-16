@@ -161,11 +161,11 @@ def analyze_video_ui(video_file, fps, custom_prompt, progress=gr.Progress()):
 
     if ad_detector is None:
         progress(0, desc="请先加载模型")
-        return "请先加载模型", None, ""
+        return "请先加载模型", None, "", gr.update(interactive=True)
 
     if video_file is None:
         progress(0, desc="请上传视频文件")
-        return "请上传视频文件", None, ""
+        return "请上传视频文件", None, "", gr.update(interactive=True)
 
     progress(0.05, desc="准备分析...")
 
@@ -178,7 +178,7 @@ def analyze_video_ui(video_file, fps, custom_prompt, progress=gr.Progress()):
         video_path = Path(video_file)
         if not video_path.exists():
             progress(0, desc="视频文件不存在")
-            return f"视频文件不存在: {video_file}", None, ""
+            return f"视频文件不存在: {video_file}", None, "", gr.update(interactive=True)
 
         logger.info(f"视频文件大小: {video_path.stat().st_size / (1024*1024):.2f} MB")
 
@@ -195,7 +195,7 @@ def analyze_video_ui(video_file, fps, custom_prompt, progress=gr.Progress()):
             custom_prompt=custom_prompt if custom_prompt.strip() else None,
             progress_callback=progress_callback
         )
-        
+
         # 格式化输出
         output_text = f"""
 ## 分析结果
@@ -208,21 +208,21 @@ def analyze_video_ui(video_file, fps, custom_prompt, progress=gr.Progress()):
 
 ### ⏱️ 检测到的广告片段
 """
-        
+
         if result['ad_segments']:
             for i, seg in enumerate(result['ad_segments'], 1):
                 output_text += f"\n**片段 {i}:** {seg['start']}s - {seg['end']}s (时长: {seg['duration']}s)"
         else:
             output_text += "\n未检测到明确的时间范围"
-        
-        # 返回结果和片段信息
+
+        # 返回结果和片段信息，并重新启用按钮
         segments_info = result['ad_segments'] if result['ad_segments'] else None
-        
-        return output_text, segments_info, result['raw_output']
-        
+
+        return output_text, segments_info, result['raw_output'], gr.update(interactive=True)
+
     except Exception as e:
         logger.error(f"分析失败: {e}")
-        return f"✗ 分析失败: {str(e)}", None, ""
+        return f"✗ 分析失败: {str(e)}", None, "", gr.update(interactive=True)
 
 
 def process_video_ui(video_file, segments_json, progress=gr.Progress()):
@@ -508,10 +508,16 @@ def create_ui():
             show_progress="full"  # 显示完整的进度条和遮罩
         )
 
+        # 分析按钮点击事件：先禁用按钮，然后执行分析，最后重新启用
         analyze_btn.click(
+            fn=lambda: gr.update(interactive=False),
+            inputs=None,
+            outputs=analyze_btn,
+            queue=False  # 立即执行，不排队
+        ).then(
             fn=analyze_video_ui,
             inputs=[video_input, fps_slider, custom_prompt_input],
-            outputs=[analysis_output, segments_state, gr.Textbox(visible=False)],
+            outputs=[analysis_output, segments_state, gr.Textbox(visible=False), analyze_btn],
             show_progress="full",  # 显示完整的进度条和遮罩
             show_api=False  # 隐藏 API 信息
         )
